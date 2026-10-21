@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#102b4e">
+  <title>LTV ICT | Workflow</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="script.js"></script>
+</head>
+<body>
+  <div id="login-screen" class="login-wrap">
+    <form id="login-form" class="login-card">
+      <div class="brand-mark">LTV</div>
+      <p class="eyebrow">ICT UNIT</p>
+      <h1>Workflow Portal</h1>
+      <p class="muted">Sign in with your authorized ICT account.</p>
+      <label for="email">Work email</label>
+      <input id="email" name="email" type="email" autocomplete="username" required>
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" required>
+      <button class="btn primary full" type="submit">Sign in</button>
+      <p id="login-message" class="message" role="status"></p>
+    </form>
+  </div>
+
+  <div id="app" class="app-shell hidden">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark small">LTV</div>
+        <div><strong>ICT Workflow</strong><span>Internal workspace</span></div>
+      </div>
+      <nav aria-label="Main navigation">
+        <button class="nav-link active" data-view="dashboard"><span>▦</span> Dashboard</button>
+        <button class="nav-link" data-view="projects"><span>▤</span> Projects</button>
+        <button class="nav-link" data-view="tasks"><span>☷</span> Tasks</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="signed-in"><span class="online-dot"></span><span id="signed-in-email">Signed in</span></div>
+        <button id="sign-out" class="nav-link sign-out"><span>↪</span> Sign out</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">LAGOS TELEVISION · ICT UNIT</p>
+          <h1 id="page-title">Dashboard</h1>
+        </div>
+        <div class="topbar-actions">
+          <span id="today-label" class="date-label"></span>
+          <button id="new-project-top" class="btn primary">＋ New project</button>
+          <button id="new-task-top" class="btn secondary">＋ New task</button>
+        </div>
+      </header>
+
+      <section id="notice" class="notice hidden" role="status"></section>
+
+      <section id="dashboard-view" class="view">
+        <div class="welcome">
+          <div><h2>Good to see you.</h2><p>Here is the current picture of ICT work.</p></div>
+          <span class="welcome-symbol">LTV / ICT</span>
+        </div>
+        <div class="stats-grid">
+          <article class="stat-card"><span class="stat-label">Total projects</span><strong id="stat-projects">—</strong><span class="stat-foot">Across the ICT unit</span></article>
+          <article class="stat-card"><span class="stat-label">Open tasks</span><strong id="stat-open">—</strong><span class="stat-foot">To do or in progress</span></article>
+          <article class="stat-card"><span class="stat-label">Completed tasks</span><strong id="stat-completed">—</strong><span class="stat-foot">Marked complete</span></article>
+          <article class="stat-card alert-card"><span class="stat-label">Overdue tasks</span><strong id="stat-overdue">—</strong><span class="stat-foot">Past deadline and not complete</span></article>
+        </div>
+        <div class="content-grid">
+          <section class="panel">
+            <div class="panel-heading"><div><h2>Recent tasks</h2><p>Latest work items across projects</p></div><button class="text-button" data-go="tasks">View all →</button></div>
+            <div id="recent-tasks" class="task-list"><p class="muted">Loading tasks…</p></div>
+          </section>
+          <section class="panel">
+            <div class="panel-heading"><div><h2>Project overview</h2><p>Current project status</p></div><button class="text-button" data-go="projects">View all →</button></div>
+            <div id="project-overview" class="project-list"><p class="muted">Loading projects…</p></div>
+          </section>
+        </div>
+      </section>
+
+      <section id="projects-view" class="view hidden">
+        <div class="section-intro"><div><h2>Projects</h2><p>Plan and coordinate ICT initiatives.</p></div><button class="btn primary" id="new-project">＋ Create project</button></div>
+        <div id="projects-grid" class="projects-grid"></div>
+      </section>
+
+      <section id="tasks-view" class="view hidden">
+        <div class="section-intro"><div><h2>Tasks</h2><p>Assign responsibilities and keep work moving.</p></div><button class="btn primary" id="new-task">＋ Create task</button></div>
+        <div class="filters">
+          <input id="task-search" type="search" placeholder="Search tasks…" aria-label="Search tasks">
+          <select id="status-filter" aria-label="Filter by status">
+            <option value="">All statuses</option><option>To Do</option><option>In Progress</option><option>Blocked</option><option>Completed</option>
+          </select>
+          <select id="priority-filter" aria-label="Filter by priority">
+            <option value="">All priorities</option><option>Low</option><option>Medium</option><option>High</option><option>Urgent</option>
+          </select>
+        </div>
+        <div class="panel table-panel">
+          <div class="table-scroll"><table>
+            <thead><tr><th>Task</th><th>Project</th><th>Assignee</th><th>Priority</th><th>Due date</th><th>Status</th></tr></thead>
+            <tbody id="tasks-table"><tr><td colspan="6" class="muted">Loading tasks…</td></tr></tbody>
+          </table></div>
+        </div>
+      </section>
+
+      <footer>Internal ICT workspace · LTV <span>Keep work visible. Keep delivery accountable.</span></footer>
+    </main>
+  </div>
+
+  <dialog id="project-dialog" class="modal">
+    <form id="project-form" class="modal-form">
+      <div class="modal-heading"><div><p class="eyebrow">PROJECT SETUP</p><h2>Create a project</h2></div><button type="button" class="icon-button" data-close="project-dialog" aria-label="Close">×</button></div>
+      <label for="project-name">Project name *</label><input id="project-name" required maxlength="120" placeholder="e.g. Studio network upgrade">
+      <label for="project-description">Description</label><textarea id="project-description" rows="3" placeholder="Objective, scope and expected outcome"></textarea>
+      <div class="form-row"><div><label for="project-status">Status</label><select id="project-status"><option>Planning</option><option selected>Active</option><option>On Hold</option><option>Completed</option></select></div><div><label for="project-due">Target date</label><input id="project-due" type="date"></div></div>
+      <p id="project-error" class="form-error"></p><div class="modal-actions"><button type="button" class="btn secondary" data-close="project-dialog">Cancel</button><button class="btn primary" type="submit">Save project</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="task-dialog" class="modal">
+    <form id="task-form" class="modal-form">
+      <div class="modal-heading"><div><p class="eyebrow">TASK SETUP</p><h2>Create a task</h2></div><button type="button" class="icon-button" data-close="task-dialog" aria-label="Close">×</button></div>
+      <label for="task-title">Task title *</label><input id="task-title" required maxlength="160" placeholder="e.g. Test backup internet link">
+      <label for="task-description">Description</label><textarea id="task-description" rows="3" placeholder="What needs to be done?"></textarea>
+      <label for="task-project">Project *</label><select id="task-project" required><option value="">Choose a project</option></select>
+      <div class="form-row"><div><label for="task-assignee">Assign to</label><select id="task-assignee"><option value="">Unassigned</option></select></div><div><label for="task-priority">Priority</label><select id="task-priority"><option>Low</option><option selected>Medium</option><option>High</option><option>Urgent</option></select></div></div>
+      <div class="form-row"><div><label for="task-status">Status</label><select id="task-status"><option>To Do</option><option>In Progress</option><option>Blocked</option><option>Completed</option></select></div><div><label for="task-due">Due date</label><input id="task-due" type="date"></div></div>
+      <p id="task-error" class="form-error"></p><div class="modal-actions"><button type="button" class="btn secondary" data-close="task-dialog">Cancel</button><button class="btn primary" type="submit">Save task</button></div>
+    </form>
+  </dialog>
+</body>
+</html>
